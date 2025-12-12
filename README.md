@@ -11,16 +11,16 @@ Markdown で書かれた技術記事やドキュメントを `draft/` ブラン�
 
 ```mermaid
 graph LR
-    User[Developer] -->|Push (draft/*)| GH[GitHub Repository]
+    User[Developer] -->|"Push (draft/*)"| GH[GitHub Repository]
     subgraph "CI/CD Pipeline (GitHub Actions)"
         GH -->|Trigger| Action[AI Review Workflow]
-        Action -->|Read .md files| Python[ai_reviewer.py]
-        Python -->|Request Review| API[Anthropic API (Claude 3.5 Sonnet)]
-        API -->|Return Refined Text| Python
-        Python -->|Commit & Push| NewBranch[Branch: ai-review/*]
+        Action -->|"Read .md files"| Python[ai_reviewer.py]
+        Python -->|"Request Review"| API[Anthropic API (Claude 3.5 Sonnet)]
+        API -->|"Return Refined Text"| Python
+        Python -->|"Commit & Push"| NewBranch["Branch: ai-review/*"]
     end
-    NewBranch -->|Create PR| PR[Pull Request]
-    PR -->|Review & Merge| User
+    NewBranch -->|"Create PR"| PR[Pull Request]
+    PR -->|"Review & Merge"| User
 ```
 
 ## ✨ Features
@@ -90,3 +90,5 @@ SYSTEM_PROMPT = """
 論理的飛躍や、エビデンスの不足を厳しく指摘してください...
 """
 ```
+
+aaa
