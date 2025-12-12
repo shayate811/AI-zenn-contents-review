@@ -3,7 +3,7 @@ name: AI Reviewer
 on:
   push:
     branches:
-      - "draft/**" # draft/ から始まるブランチへのPushで発火
+      - "draft/**"
 
 permissions:
   contents: write
@@ -26,39 +26,41 @@ jobs:
       - name: Install dependencies
         run: pip install anthropic
 
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v44
-        with:
-          files: |
-            *.md
-            zenn-contents/articles/*.md
-            articles/*.md
-            docs/*.md
-
+      # 👇 【変更点】ライブラリを使わず、Gitコマンドで直接変更ファイルを探します
       - name: Run AI Reviewer
-        if: steps.changed-files.outputs.any_changed == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          if [ -z "$ANTHROPIC_API_KEY" ]; then
-            echo "Error: ANTHROPIC_API_KEY secret is not set"
-            exit 1
-          fi
-          python ai_reviewer.py ${{ steps.changed-files.outputs.all_changed_files }}
+          # 直前のコミット(HEAD^)と現在(HEAD)の差分を見て、.mdファイルだけ抽出
+          # 新規ブランチの場合はorigin/mainとの差分を見るなど調整が必要ですが
+          # 今回はシンプルに「変更があったファイル」を探します
 
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD | grep '\.md$' || true)
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No markdown files changed."
+            echo "HAS_CHANGES=false" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          echo "Found markdown files: $CHANGED_FILES"
+          echo "HAS_CHANGES=true" >> $GITHUB_ENV
+
+          # Pythonスクリプトにファイルパスを渡して実行
+          python ai_reviewer.py $CHANGED_FILES
+
+      # 👇 【変更点】Pythonが実行された場合のみPR作成に進む
       - name: Create Pull Request
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: env.HAS_CHANGES == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 変更があるか確認
+          # 変更があるか念のためGitレベルでも確認
           if git diff --quiet; then
             echo "No changes made by AI."
             exit 0
           fi
 
-          # AI用のブランチを作成
           BRANCH_NAME="ai-review/${{ github.ref_name }}-$(date +%s)"
           git config --global user.name "Claude-Reviewer"
           git config --global user.email "claude@example.com"
@@ -68,7 +70,6 @@ jobs:
           git commit -m "refactor: AIによる記事校正"
           git push origin $BRANCH_NAME
 
-          # PRを作成
           gh pr create \
             --base ${{ github.ref_name }} \
             --head $BRANCH_NAME \
