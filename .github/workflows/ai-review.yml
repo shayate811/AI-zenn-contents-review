@@ -1,4 +1,4 @@
-name: AI Architect Reviewer
+name: AI Reviewer
 
 on:
   push:
@@ -31,6 +31,8 @@ jobs:
         uses: tj-actions/changed-files@v44
         with:
           files: |
+            *.md
+            zenn-contents/articles/*.md
             articles/*.md
             docs/*.md
 
@@ -39,6 +41,10 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "Error: ANTHROPIC_API_KEY secret is not set"
+            exit 1
+          fi
           python ai_reviewer.py ${{ steps.changed-files.outputs.all_changed_files }}
 
       - name: Create Pull Request
