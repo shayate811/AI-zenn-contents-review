@@ -3,7 +3,7 @@ name: AI Reviewer
 on:
   push:
     branches:
-      - "draft/**" # draft/ から始まるブランチへのPushで発火
+      - "draft/**"
 
 permissions:
   contents: write
@@ -26,40 +26,40 @@ jobs:
       - name: Install dependencies
         run: pip install anthropic
 
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v44
-        with:
-          files: |
-            *.md
-            zenn-contents/articles/*.md
-            articles/*.md
-            docs/*.md
-
       - name: Run AI Reviewer
-        if: steps.changed-files.outputs.any_changed == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          if [ -z "$ANTHROPIC_API_KEY" ]; then
-            echo "Error: ANTHROPIC_API_KEY secret is not set"
-            exit 1
+          echo "🔎 Checking for changes..."
+
+          # 変更ファイルを特定（削除されたファイルは除外）
+          CHANGED_FILES=$(git diff --name-only --diff-filter=d HEAD^ HEAD | grep '\.md$' || true)
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "⚠️ No markdown files changed."
+            echo "HAS_CHANGES=false" >> $GITHUB_ENV
+            exit 0
           fi
-          python ai_reviewer.py ${{ steps.changed-files.outputs.all_changed_files }}
+
+          echo "✅ Found markdown files: $CHANGED_FILES"
+          echo "HAS_CHANGES=true" >> $GITHUB_ENV
+
+          # Pythonスクリプトを実行
+          python ai_reviewer.py $CHANGED_FILES
 
       - name: Create Pull Request
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: env.HAS_CHANGES == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 変更があるか確認
+          # 念のためGitレベルでも差分確認
           if git diff --quiet; then
             echo "No changes made by AI."
             exit 0
           fi
 
-          # AI用のブランチを作成
           BRANCH_NAME="ai-review/${{ github.ref_name }}-$(date +%s)"
+
           git config --global user.name "Claude-Reviewer"
           git config --global user.email "claude@example.com"
 
@@ -68,7 +68,6 @@ jobs:
           git commit -m "refactor: AIによる記事校正"
           git push origin $BRANCH_NAME
 
-          # PRを作成
           gh pr create \
             --base ${{ github.ref_name }} \
             --head $BRANCH_NAME \
