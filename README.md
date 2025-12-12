@@ -1,4 +1,4 @@
-# 🤖AI Docs: Claude 3.5 Powered Reviewer
+# AI Docs: Claude 3.5 Powered Reviewer
 
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-Automated-blue?logo=github-actions)
 ![Claude 3.5 Sonnet](https://img.shields.io/badge/Model-Claude_3.5_Sonnet-d06d48?logo=anthropic)
@@ -25,10 +25,10 @@ graph LR
 
 ## ✨ Features
 
-- 完全自動レビュー: Push をトリガーに、AI がドキュメントの誤字脱字、トーン＆マナー、構成をチェックします。
-- Claude 3.5 Sonnet (Latest) 採用: 最新の LLM を使用し、文脈を理解した高度な修正提案を行います。
-- GitHub Native: 修正提案は Pull Request の「差分（Diff）」として提示されるため、人間は確認してマージするだけです。
-- Configurable: プロンプト（ai_reviewer.py）を編集することで、AI の「レビュアーとしての人格」や「厳しさ」を自由に調整可能です。
+1. 完全自動レビュー: Push をトリガーに、AI がドキュメントの誤字脱字、トーン&マナー、構成をチェックします。
+2. Claude 3.5 Sonnet (Latest) 採用: 最新の LLM を使用し、文脈を理解した高度な修正提案を行います。
+3. GitHub Native: 修正提案は Pull Request の「差分（Diff）」として提示されるため、人間は確認してマージするだけです。
+4. Configurable: プロンプト（ai_reviewer.py）を編集することで、AI の「レビュアーとしての人格」や「厳しさ」を自由に調整可能です。
 
 ## 🚀 How to Use
 
