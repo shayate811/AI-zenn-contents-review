@@ -1,0 +1,70 @@
+name: AI Architect Reviewer
+
+on:
+  push:
+    branches:
+      - "draft/**" # draft/ から始まるブランチへのPushで発火
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install anthropic
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            articles/*.md
+            docs/*.md
+
+      - name: Run AI Reviewer
+        if: steps.changed-files.outputs.any_changed == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python ai_reviewer.py ${{ steps.changed-files.outputs.all_changed_files }}
+
+      - name: Create Pull Request
+        if: steps.changed-files.outputs.any_changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 変更があるか確認
+          if git diff --quiet; then
+            echo "No changes made by AI."
+            exit 0
+          fi
+
+          # AI用のブランチを作成
+          BRANCH_NAME="ai-review/${{ github.ref_name }}-$(date +%s)"
+          git config --global user.name "Claude-Reviewer"
+          git config --global user.email "claude@example.com"
+
+          git checkout -b $BRANCH_NAME
+          git add .
+          git commit -m "refactor: AIによる記事校正"
+          git push origin $BRANCH_NAME
+
+          # PRを作成
+          gh pr create \
+            --base ${{ github.ref_name }} \
+            --head $BRANCH_NAME \
+            --title "🤖 AI Review: ${{ github.ref_name }} の校正提案" \
+            --body "Claude 3.5 Sonnetによる自動レビュー結果です。内容を確認してマージ、または修正してください。"
