@@ -26,42 +26,40 @@ jobs:
       - name: Install dependencies
         run: pip install anthropic
 
-      # 👇 【変更点】ライブラリを使わず、Gitコマンドで直接変更ファイルを探します
       - name: Run AI Reviewer
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          # 直前のコミット(HEAD^)と現在(HEAD)の差分を見て、.mdファイルだけ抽出
-          # 新規ブランチの場合はorigin/mainとの差分を見るなど調整が必要ですが
-          # 今回はシンプルに「変更があったファイル」を探します
+          echo "🔎 Checking for changes..."
 
-          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD | grep '\.md$' || true)
+          # 変更ファイルを特定（削除されたファイルは除外）
+          CHANGED_FILES=$(git diff --name-only --diff-filter=d HEAD^ HEAD | grep '\.md$' || true)
 
           if [ -z "$CHANGED_FILES" ]; then
-            echo "No markdown files changed."
+            echo "⚠️ No markdown files changed."
             echo "HAS_CHANGES=false" >> $GITHUB_ENV
             exit 0
           fi
 
-          echo "Found markdown files: $CHANGED_FILES"
+          echo "✅ Found markdown files: $CHANGED_FILES"
           echo "HAS_CHANGES=true" >> $GITHUB_ENV
 
-          # Pythonスクリプトにファイルパスを渡して実行
+          # Pythonスクリプトを実行
           python ai_reviewer.py $CHANGED_FILES
 
-      # 👇 【変更点】Pythonが実行された場合のみPR作成に進む
       - name: Create Pull Request
         if: env.HAS_CHANGES == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 変更があるか念のためGitレベルでも確認
+          # 念のためGitレベルでも差分確認
           if git diff --quiet; then
             echo "No changes made by AI."
             exit 0
           fi
 
           BRANCH_NAME="ai-review/${{ github.ref_name }}-$(date +%s)"
+
           git config --global user.name "Claude-Reviewer"
           git config --global user.email "claude@example.com"
 

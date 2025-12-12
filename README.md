@@ -15,7 +15,7 @@ graph LR
     subgraph "CI/CD Pipeline (GitHub Actions)"
         GH -->|Trigger| Action[AI Review Workflow]
         Action -->|"Read .md files"| Python[ai_reviewer.py]
-        Python -->|"Request Review"| API[Anthropic API (Claude 3.5 Sonnet)]
+        Python -->|"Request Review"| API["Anthropic API (Claude 3.5 Sonnet)"]
         API -->|"Return Refined Text"| Python
         Python -->|"Commit & Push"| NewBranch["Branch: ai-review/*"]
     end
