@@ -1,4 +1,4 @@
-# 🤖 AI Docs: Claude 3.5 Powered Reviewer
+# AI Docs: Claude 3.5 Powered Reviewer
 
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-Automated-blue?logo=github-actions)
 ![Claude 3.5 Sonnet](https://img.shields.io/badge/Model-Claude_3.5_Sonnet-d06d48?logo=anthropic)
@@ -94,5 +94,3 @@ SYSTEM_PROMPT = """
 論理的飛躍や、エビデンスの不足を厳しく指摘してください...
 """
 ```
-
-add bug: aaa
