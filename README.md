@@ -1,4 +1,4 @@
-# AI Docs: Claude 3.5 Powered Reviewer
+# 🤖 AI Docs: Claude 3.5 Powered Reviewer
 
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-Automated-blue?logo=github-actions)
 ![Claude 3.5 Sonnet](https://img.shields.io/badge/Model-Claude_3.5_Sonnet-d06d48?logo=anthropic)
@@ -10,17 +10,30 @@ Markdown で書かれた技術記事やドキュメントを `draft/` ブラン�
 ## 🏗 Architecture
 
 ```mermaid
-graph LR
-    User[Developer] -->|"Push (draft/*)"| GH[GitHub Repository]
+graph TD
+    %% ノードのスタイル定義（見やすくするための装飾）
+    classDef actor fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef gh fill:#24292e,stroke:#333,stroke-width:2px,color:#fff;
+    classDef ext fill:#ff9900,stroke:#333,stroke-width:2px,color:white;
+
+    User([Developer]) -->|"Push (draft/*)"| GH[GitHub Repository]
+
     subgraph "CI/CD Pipeline (GitHub Actions)"
+        direction TB
         GH -->|Trigger| Action[AI Review Workflow]
         Action -->|"Read .md files"| Python[ai_reviewer.py]
-        Python -->|"Request Review"| API["Anthropic API (Claude 3.5 Sonnet)"]
+        Python -->|"Request Review"| API[("Anthropic API<br>(Claude 3.5 Sonnet)")]
         API -->|"Return Refined Text"| Python
         Python -->|"Commit & Push"| NewBranch["Branch: ai-review/*"]
     end
+
     NewBranch -->|"Create PR"| PR[Pull Request]
     PR -->|"Review & Merge"| User
+
+    %% クラスの適用
+    class User actor;
+    class GH gh;
+    class API ext;
 ```
 
 ## ✨ Features
@@ -52,6 +65,7 @@ graph LR
 このワークフローをあなたのリポジトリで使用するには、以下の設定が必要です。
 
 **Prerequisites**
+
 - Anthropic API Key (Credit があること)
 
 **Repository Secrets**
