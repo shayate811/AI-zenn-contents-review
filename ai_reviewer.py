@@ -27,8 +27,8 @@ def review_article(file_path):
     print(f"Reviewing: {file_path} ...")
 
     message = client.messages.create(
-        model="claude-3-5-sonnet-20240620",
-        max_tokens=8000,
+        model="claude-3-haiku-20240307",
+        max_tokens=4096,
         temperature=0,
         system=SYSTEM_PROMPT,
         messages=[
