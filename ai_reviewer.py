@@ -28,7 +28,7 @@ def review_article(file_path):
 
     message = client.messages.create(
         model="claude-3-haiku-20240307",
-        max_tokens=8000,
+        max_tokens=4096,
         temperature=0,
         system=SYSTEM_PROMPT,
         messages=[
