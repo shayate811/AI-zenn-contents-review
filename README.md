@@ -5,7 +5,7 @@
 
 **「Docs as Code」と「AI Agent」を融合させた、次世代のドキュメント執筆ワークフローです。**
 
-Markdown で書かれた技術記事やドキュメントを `draft/` ブランチに Push するだけで、Claude 3.5 Sonnet (Latest) が自動的に校正・レビューを行い、修正案を **Pull Request** として提案します。
+Markdown で書かれた技術記事やドキュメントを `draft/` ブランチに Push するだけで、Claude 3 が自動的に校正・レビューを行い、修正案を **Pull Request** として提案します。
 
 ## 🏗 Architecture
 
@@ -80,7 +80,7 @@ Value: Anthropic Console から取得した API キー (sk-ant-...)
 
 ## 🛠 Tech Stack
 
-- LLM: Anthropic Claude 3.5 Sonnet (Latest)
+- LLM: Anthropic Claude 3.5 Sonnet
 - Orchestration: GitHub Actions
 - Logic: Python 3.10 + anthropic SDK
 
