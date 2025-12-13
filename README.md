@@ -12,7 +12,7 @@ Markdown で書かれた技術記事やドキュメントを `draft/` ブラン�
 ```mermaid
 graph TD
     %% ノードのスタイル定義（見やすくするための装飾）
-    classDef actor fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef actor fill:#f9f3f,stroke:#333,stroke-width:2px;
     classDef gh fill:#24292e,stroke:#333,stroke-width:2px,color:#fff;
     classDef ext fill:#ff9900,stroke:#333,stroke-width:2px,color:white;
 
